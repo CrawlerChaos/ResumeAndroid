@@ -73,14 +73,14 @@ class LiveDataCallFactory private constructor(
         var responseType: Type = getParameterUpperBound(0, responseResultType)
 
         return when (getRawType(responseResultType)) {
-            ResposeResult::class.java -> LiveDataCallAdapter<Any>(responseType)
+            ResposeResult::class.java -> LiveDataCallAdapter<Nothing>(responseType)
 
-            ResposeResultWithErrorType::class.java -> LiveDataWithErrorTypeCallAdapter<Any, Any>(
+            ResposeResultWithErrorType::class.java -> LiveDataWithErrorTypeCallAdapter<Nothing, Nothing>(
                 responseType,
                 getParameterUpperBound(1, responseResultType)
             )
 
-            else -> LiveDataCallAdapter<Any>(responseType)
+            else -> LiveDataCallAdapter<Nothing>(responseType)
         }
     }
 
@@ -91,7 +91,7 @@ class LiveDataCallFactory private constructor(
     }
 
     private fun throwError() {
-        throw IllegalStateException("Response must be parametrized as " + "LiveData<ResposeResult<DataT,ErrorT>> or LiveData<T>")
+        throw IllegalStateException("Response must be parametrized as " + "LiveData<ResposeResultWithErrorType<DataT,ErrorT>> or LiveData<ResposeResult<DataT>> or LiveData<DataT>")
     }
 
     inner class LiveDataCallAdapter<ResponseBodyT> internal constructor(private val responseType: Type) :
@@ -147,7 +147,7 @@ class LiveDataCallFactory private constructor(
         override fun adapt(call: Call<ResponseBodyT>): LiveData<ResponseResultT> {
             val liveDataResponse = MutableLiveData<ResponseResultT>()
             liveDataResponse.postValue(loading())
-            subscribWorker.schedule { call.enqueue(BaseLiveDataResponseCallCallback(liveDataResponse)) }
+            subscribWorker.schedule { call.enqueue(LiveDataResponseCallCallback(liveDataResponse)) }
             return liveDataResponse
         }
 
@@ -157,7 +157,7 @@ class LiveDataCallFactory private constructor(
 
         abstract fun failure(error: ErrorBodyT?): ResponseResultT
 
-        private inner class BaseLiveDataResponseCallCallback internal constructor(private val liveData: MutableLiveData<ResponseResultT>) :
+        private inner class LiveDataResponseCallCallback internal constructor(private val liveData: MutableLiveData<ResponseResultT>) :
             Callback<ResponseBodyT> {
 
             override fun onResponse(call: Call<ResponseBodyT>, response: Response<ResponseBodyT>) {
