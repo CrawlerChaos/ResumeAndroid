@@ -19,7 +19,7 @@ interface AccountService {
     fun regist(@Body params: RegistRequest): LiveData<ResposeResult<AccountDTO>>
 
     @POST(AccountUrl.PREFIX + AccountUrl.PATH_LOGIN)
-    fun login(@Body params: LoginRequest): LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>>
+    fun login(@Body params: LoginRequest): LiveData<ResposeResult<AccountDTO>>
 
     @PUT(AccountUrl.PREFIX + AccountUrl.PATH_UPDATE)
     fun update(@Body params: AccountDTO): LiveData<ResposeResult<AccountDTO>>

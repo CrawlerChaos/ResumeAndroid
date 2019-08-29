@@ -30,7 +30,7 @@ class SignInViewModel : BaseViewModel() {
 
     private val viewType = MutableLiveData<SignType>()
     private val registResult: LiveData<ResposeResult<AccountDTO>>
-    private val loginResult: LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>>
+    private val loginResult: LiveData<ResposeResult<AccountDTO>>
 
 
     init {
@@ -38,7 +38,7 @@ class SignInViewModel : BaseViewModel() {
 
         loginResult = Transformations.switchMap(
             loginRequest,
-            Function<LoginRequest, LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>>> { request ->
+            Function<LoginRequest, LiveData<ResposeResult<AccountDTO>>> { request ->
                 if (request == null) return@Function AbsentLiveData.create()
                 accountRepo.login(request)
             })
@@ -61,7 +61,7 @@ class SignInViewModel : BaseViewModel() {
         return viewType
     }
 
-    fun getLoginResult(): LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>> {
+    fun getLoginResult(): LiveData<ResposeResult<AccountDTO>> {
         return loginResult
     }
 

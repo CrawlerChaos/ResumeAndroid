@@ -53,7 +53,7 @@ class AccountRepo : IRepository {
         this.account.postValue(Gson().fromJson(accountJson, AccountDTO::class.java))
     }
 
-    fun login(request: LoginRequest): LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>> {
+    fun login(request: LoginRequest): LiveData<ResposeResult<AccountDTO>> {
         return Transformations.map(RetrofitClient
                 .getService(AccountService::class.java)
                 .login(request), Function { result ->
