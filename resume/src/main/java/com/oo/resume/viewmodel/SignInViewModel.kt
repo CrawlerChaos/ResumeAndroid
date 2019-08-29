@@ -10,6 +10,8 @@ import com.oo.platform.viewmodel.BaseViewModel
 import com.oo.resume.data.request.LoginRequest
 import com.oo.resume.data.request.RegistRequest
 import com.oo.resume.data.response.AccountDTO
+import com.oo.resume.data.response.ErrorBody
+import com.oo.resume.net.ResposeResultWithErrorType
 import com.oo.resume.net.ResposeResult
 import com.oo.resume.repository.AccountRepo
 
@@ -28,7 +30,7 @@ class SignInViewModel : BaseViewModel() {
 
     private val viewType = MutableLiveData<SignType>()
     private val registResult: LiveData<ResposeResult<AccountDTO>>
-    private val loginResult: LiveData<ResposeResult<AccountDTO>>
+    private val loginResult: LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>>
 
 
     init {
@@ -36,7 +38,7 @@ class SignInViewModel : BaseViewModel() {
 
         loginResult = Transformations.switchMap(
             loginRequest,
-            Function<LoginRequest, LiveData<ResposeResult<AccountDTO>>> { request ->
+            Function<LoginRequest, LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>>> { request ->
                 if (request == null) return@Function AbsentLiveData.create()
                 accountRepo.login(request)
             })
@@ -59,7 +61,7 @@ class SignInViewModel : BaseViewModel() {
         return viewType
     }
 
-    fun getLoginResult(): LiveData<ResposeResult<AccountDTO>> {
+    fun getLoginResult(): LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>> {
         return loginResult
     }
 

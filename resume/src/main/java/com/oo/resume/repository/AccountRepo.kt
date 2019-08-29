@@ -12,6 +12,8 @@ import com.oo.resume.data.request.LoginRequest
 import com.oo.resume.data.request.RegistRequest
 import com.oo.resume.data.request.ResetPasswordRequest
 import com.oo.resume.data.response.AccountDTO
+import com.oo.resume.data.response.ErrorBody
+import com.oo.resume.net.ResposeResultWithErrorType
 import com.oo.resume.net.ResposeResult
 import com.oo.resume.net.RetrofitClient
 import com.oo.resume.service.AccountService
@@ -51,7 +53,7 @@ class AccountRepo : IRepository {
         this.account.postValue(Gson().fromJson(accountJson, AccountDTO::class.java))
     }
 
-    fun login(request: LoginRequest): LiveData<ResposeResult<AccountDTO>> {
+    fun login(request: LoginRequest): LiveData<ResposeResultWithErrorType<AccountDTO,ErrorBody>> {
         return Transformations.map(RetrofitClient
                 .getService(AccountService::class.java)
                 .login(request), Function { result ->
@@ -61,7 +63,7 @@ class AccountRepo : IRepository {
         })
     }
 
-    private fun setSession(result: ResposeResult<AccountDTO>?) {
+    private fun setSession(result: ResposeResultWithErrorType<AccountDTO,ErrorBody>?) {
         if (result == null || !result.isSuccess || result.data == null
                 || result.data.session_key.isNullOrEmpty()
                 || result.data.session_user.isNullOrEmpty()
