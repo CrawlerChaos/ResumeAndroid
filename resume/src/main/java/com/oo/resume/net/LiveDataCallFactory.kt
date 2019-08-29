@@ -73,7 +73,7 @@ class LiveDataCallFactory private constructor(
         var responseType: Type = getParameterUpperBound(0, responseResultType)
 
         return when (getRawType(responseResultType)) {
-            ResposeResult::class.java -> LiveDataCallAdapter<Nothing>(responseType)
+            ResposeResult::class.java -> LiveDataResultCallAdapter<Nothing>(responseType)
 
             ResposeResultWithErrorType::class.java -> LiveDataWithErrorTypeCallAdapter<Nothing, Nothing>(
                 responseType,
@@ -95,6 +95,42 @@ class LiveDataCallFactory private constructor(
     }
 
     inner class LiveDataCallAdapter<ResponseBodyT> internal constructor(private val responseType: Type) :
+        CallAdapter<ResponseBodyT, LiveData<ResponseBodyT>> {
+
+        override fun responseType(): Type {
+            return responseType
+        }
+
+        override fun adapt(call: Call<ResponseBodyT>): LiveData<ResponseBodyT> {
+            val liveDataResponse = MutableLiveData<ResponseBodyT>()
+            subscribWorker.schedule { call.enqueue(LiveDataCallCallback(liveDataResponse)) }
+            return liveDataResponse
+        }
+
+        private inner class LiveDataCallCallback internal constructor(private val liveData: MutableLiveData<ResponseBodyT>) :
+            Callback<ResponseBodyT> {
+
+            override fun onResponse(call: Call<ResponseBodyT>, response: Response<ResponseBodyT>) {
+                if (call.isCanceled) return
+                observeWorker.schedule {
+                    if (response.isSuccessful) {
+                        liveData.postValue(response.body())
+                    } else {
+                        onFailure(call, HttpException(response))
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBodyT>, t: Throwable) {
+                if (call.isCanceled) return
+                observeWorker.schedule {
+                    liveData.postValue(null)
+                }
+            }
+        }
+    }
+
+    inner class LiveDataResultCallAdapter<ResponseBodyT> internal constructor(private val responseType: Type) :
         BaseLiveDataResponseCallAdapter<ResposeResult<ResponseBodyT>, ResponseBodyT, ErrorBody>(
             responseType,
             ErrorBody::class.java
@@ -111,6 +147,7 @@ class LiveDataCallFactory private constructor(
             return ResposeResult.failure(error)
         }
     }
+
 
     inner class LiveDataWithErrorTypeCallAdapter<ResponseBodyT, ErrorBodyT> internal constructor(
         private val responseType: Type,
