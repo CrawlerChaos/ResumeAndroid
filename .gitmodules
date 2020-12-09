@@ -1,3 +1,6 @@
 [submodule "data/src/main/java"]
 	path = data/src/main/java
 	url = git@github.com:CrawlerChaos/ResumeData.git
+[submodule "android-platform"]
+	path = android-platform
+	url = git@github.com:CrawlerChaos/AndroidPlatform.git

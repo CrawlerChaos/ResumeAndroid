@@ -68,16 +68,19 @@ class LiveDataCallFactory private constructor(
         returnType as ParameterizedType
         val responseResultType = getParameterUpperBound(0, returnType)
 
-        isTypeIllige(responseResultType)
-        responseResultType as ParameterizedType
-        var responseType: Type = getParameterUpperBound(0, responseResultType)
+        var responseType: Type
+        if (responseResultType is ParameterizedType) {
+            responseType = getParameterUpperBound(0, responseResultType)
+        } else {
+            responseType = responseResultType
+        }
 
         return when (getRawType(responseResultType)) {
             ResposeResult::class.java -> LiveDataResultCallAdapter<Nothing>(responseType)
 
             ResposeResultWithErrorType::class.java -> LiveDataWithErrorTypeCallAdapter<Nothing, Nothing>(
                 responseType,
-                getParameterUpperBound(1, responseResultType)
+                getParameterUpperBound(1, responseResultType as ParameterizedType)
             )
 
             else -> LiveDataCallAdapter<Nothing>(responseType)

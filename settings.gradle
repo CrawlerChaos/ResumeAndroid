@@ -1,1 +1,1 @@
-include ':resume', ':platform', ':data', ':widget'
+include ':resume', ':android-platform', ':data', ':widget'

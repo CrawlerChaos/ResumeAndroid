@@ -6,23 +6,18 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.chenenyu.router'
 
-ext {
-    routerVersion = '1.6.3'
-    compilerVersion = '1.6.4'
-}
-
 configurations {
     all*.exclude group: 'com.google.guava', module: 'listenablefuture'
 }
 android {
-    compileSdkVersion 28
+    def config = config_android
+    compileSdkVersion config.compileSdkVersion
     defaultConfig {
         applicationId "com.oo.resume"
-        minSdkVersion 21
-        targetSdkVersion 28
+        minSdkVersion config.minSdkVersion
+        targetSdkVersion config.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
     buildTypes {
@@ -35,27 +30,26 @@ android {
     productFlavors {
         PRO {
             dimension = 'API_ENV'
-            buildConfigField('String','API_HOST','"http://134.175.147.149"')
+            buildConfigField('String', 'API_HOST', '"http://134.175.147.149"')
         }
         DEV {
             dimension = 'API_ENV'
-            buildConfigField('String','API_HOST','"http://172.25.165.242"')
+            buildConfigField('String', 'API_HOST', '"http://172.25.165.242"')
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility config.javaVersion
+        targetCompatibility config.javaVersion
     }
 }
 
 
 dependencies {
-    def dep = rootProject.ext.dependencies
+
+    def dep = dependencies_lib
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    testImplementation dep.junit4
+    implementation dep.kotlin_stdlib
     implementation dep.rxjava2
     implementation dep.rxAndroid
     implementation dep.retrofit2
@@ -65,11 +59,12 @@ dependencies {
     implementation dep.retrofit_rx2
     implementation dep.okhttp
     implementation dep.gson
-    implementation dep.v7
+    implementation dep.appcompat
     implementation dep.recyclerview
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation dep.fresco
     implementation dep.design
-    implementation project(path: ':platform')
+    implementation project(path: ':android-platform')
     implementation project(path: ':data')
     implementation project(path: ':widget')
 }

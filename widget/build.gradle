@@ -1,16 +1,14 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'kotlin-android'
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.1"
+    def config = rootProject.ext.config_android
+    compileSdkVersion config.compileSdkVersion
+    buildToolsVersion config.buildToolsVersion
 
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
-
+        minSdkVersion config.minSdkVersion
+        targetSdkVersion config.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
@@ -21,10 +19,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility config_android.javaVersion
+        targetCompatibility config_android.javaVersion
+    }
 
 }
 
 dependencies {
-    def dep = rootProject.ext.dependencies
+    def dep = dependencies_lib
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation dep.constraint_layout
+    implementation dep.kotlin_stdlib
+}
+repositories {
+    mavenCentral()
 }

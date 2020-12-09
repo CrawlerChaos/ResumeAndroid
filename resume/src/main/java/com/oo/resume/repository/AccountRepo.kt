@@ -63,7 +63,7 @@ class AccountRepo : IRepository {
         })
     }
 
-    private fun setSession(result: ResposeResultWithErrorType<AccountDTO,ErrorBody>?) {
+    private fun setSession(result: ResposeResult<AccountDTO>?) {
         if (result == null || !result.isSuccess || result.data == null
                 || result.data.session_key.isNullOrEmpty()
                 || result.data.session_user.isNullOrEmpty()
